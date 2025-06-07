@@ -19,4 +19,13 @@ model UnverifiedUser {
   password String
   createdAt DateTime @default(now())
   code Int?
+  userType String
+}
+
+model VerifiedUser {
+  id Int @id @default(autoincrement())
+  emailAddress String @unique
+  password String
+  createdAt DateTime @default(now())
+  userType String
 }
