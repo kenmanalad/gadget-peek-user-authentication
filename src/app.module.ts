@@ -3,6 +3,7 @@ import { RegistrationModule } from './Registration/registration.module';
 import { PrismaModule } from './Prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { NodemailerModule } from './NodeMailer/nodemailer.module';
+import { VerifyEmailModule } from './Email Verification/verify.module';
 
 
 @Module({
@@ -12,7 +13,8 @@ import { NodemailerModule } from './NodeMailer/nodemailer.module';
     }),
     PrismaModule,
     RegistrationModule,
-    NodemailerModule
+    NodemailerModule,
+    VerifyEmailModule
   ],
 })
 export class AppModule {}
