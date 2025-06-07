@@ -1,6 +1,7 @@
 export interface ManualUserDetailsInterface {
     emailAddress: string,
     password: string,
+    userType: string
 }
 
 export interface EmailDetailsInterface {

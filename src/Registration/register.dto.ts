@@ -9,7 +9,7 @@ export class RegisterDTO {
     )
     @IsString(
         {
-            message: 'Error: Email Address must not be longer than 16 characters',
+            message: 'Error: Email Address must be a string',
         }
     )
     @IsNotEmpty(
@@ -19,8 +19,16 @@ export class RegisterDTO {
     )
     emailAddress: string;
 
-    @IsString()
-    @MinLength(8)
+    @IsString(
+        {
+            message: 'Error: Password must be a string',
+        }
+    )
+    @MinLength(8,
+        {
+            message: 'Error: Password must not be less than 8 characters',
+        }
+    )
     @MaxLength(16, 
         {
             message: 'Error: Password must not be longer than 16 characters',
@@ -36,12 +44,12 @@ export class RegisterDTO {
 
     @IsString(
         {
-            message: 'Error: registerType must not be longer than 16 characters',
+            message: 'Error: registerType must be a string',
         }
     )
     @IsNotEmpty(
         {
-            message: 'Error: Password is required',
+            message: 'Error: registerType is required',
         }
     )
     @IsIn(
@@ -51,4 +59,22 @@ export class RegisterDTO {
         }
     )
     registerType: string
+
+    @IsString(
+        {
+            message: 'Error: userType must be a string',
+        }
+    )
+    @IsNotEmpty(
+        {
+            message: 'Error: userType is required',
+        }
+    )
+    @IsIn(
+        ['user', 'buyer'], 
+        {
+            message: 'Error: userType must be either "user" or "buyer"',
+        }
+    )
+    userType: string
 }

@@ -24,9 +24,9 @@ export class NodeMailerService{
     }
     
     async sendEmail(emailDetails: EmailDetailsInterface) :Promise<boolean>{
-        console.log('this is where the mailing starts');
+        
         const response = await this.transporter.sendMail(emailDetails);
-        console.log('this is where the mailing ends');
+        
 
         if(response.rejected.length > 0) throw new Error("Failed to send the email.");
 

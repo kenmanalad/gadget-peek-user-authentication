@@ -5,23 +5,47 @@ import { BasicResponseInterface } from "src/Interface/interface.response";
 import { NodeMailerService } from "src/NodeMailer/nodemailer.service";
 import { ConfigService } from "@nestjs/config";
 import { verificationEmail } from "src/Email Template/verify.email";
+import { PasswordService } from "src/Common/Services/password.service";
 @Injectable({})
 export class RegistrationService {
     constructor(
         private prismaService: PrismaService,
         private nodeMailerService: NodeMailerService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private passwordService: PasswordService
     ){}
     async manualRegister(userDetails: ManualUserDetailsInterface): Promise<BasicResponseInterface>{
         try{
             //Code for email verification
             const code = Math.floor(100000 + Math.random() * 900000);
-            console.log(typeof this.configService.get<string>("APP_NAME"));
+            const hashedPassword = await this.passwordService.hashPassword(userDetails.password);
             
+            // Use Transaction
+            const unverifiedUser = await this.prismaService.$transaction(
+                async(ts) => {
+                    const user = await ts.unverifiedUser.create({
+                        data:{
+                            emailAddress: userDetails.emailAddress,
+                            password: hashedPassword,
+                            code: code,
+                            userType: userDetails.userType
+                        }
+                    });
+
+                    return user;
+                }
+            );
+
+
+            //To stop sending email verification if user is not saved
+            if(!unverifiedUser) throw new Error("Error Occured");
+
+             
+            //Email Details for email verification
             let mailOption = {
                 from: {
                     name: this.configService.get<string>("APP_NAME") || "GP",
-                    address: this.configService.get<string>("GP_EMAIL_ADDRESS") || ""
+                    address: this.configService.get<string>("GP_EMAIL_ADDRESS") || "GP"
                 },
                 to: userDetails.emailAddress,
                 subject: `${this.configService.get<string>("APP_NAME") || "GP"} Email Verification`,
@@ -31,15 +55,8 @@ export class RegistrationService {
             }
 
             const success = await this.nodeMailerService.sendEmail(mailOption);
+
             if(!success) throw new Error("Email not sent");
-            const unverifiedUser = await this.prismaService.unverifiedUser.create({
-                data:{
-                    emailAddress: userDetails.emailAddress,
-                    password: userDetails.password,
-                    code: code
-                }
-            });
-            if(!unverifiedUser) throw new Error("Error Occured");
 
             return {
                 success: true,
@@ -56,4 +73,6 @@ export class RegistrationService {
             }
         }
     }
+
+    //Oauth registration function will be added soon for google and facebook
 }
