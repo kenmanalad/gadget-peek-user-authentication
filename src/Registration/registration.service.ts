@@ -24,7 +24,7 @@ export class RegistrationService {
                     address: this.configService.get<string>("GP_EMAIL_ADDRESS") || ""
                 },
                 to: userDetails.emailAddress,
-                subject: `${this.configService.get<string>("APP_NAME") || "GP"}Email Verification`,
+                subject: `${this.configService.get<string>("APP_NAME") || "GP"} Email Verification`,
                 text: `Your verification code is: ${code}`,
                 html: verificationEmail(code)
 
