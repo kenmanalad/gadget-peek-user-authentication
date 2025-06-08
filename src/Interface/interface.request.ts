@@ -15,10 +15,6 @@ export interface EmailDetailsInterface {
     html:string
 }
 
-export interface VerifyEmailInterface{
-    emailAddress: string,
-    code: number
-}
 
 export interface UnverifiedUserInterface {
     id: number
@@ -37,5 +33,6 @@ export interface MailOptionInterface {
 
 export interface SignInInterface{
     emailAddress: string,
-    password: string
+    password: string,
+    authType: "manual" | "oauth"
 }

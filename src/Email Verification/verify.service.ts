@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { MailService } from "src/Common/Services/mail.service";
 import { accountVerifiedEmail } from "src/Email Template/verified.template";
-import { UnverifiedUserInterface, VerifyEmailInterface } from "src/Interface/interface.request";
 import { BasicResponseInterface } from "src/Interface/interface.response";
 import { NodeMailerService } from "src/NodeMailer/nodemailer.service";
 import { PrismaService } from "src/Prisma/prisma.service";
+import { VerifyDTO } from "./verify.dto";
 
 @Injectable({})
 export class VerifyEmailService {
@@ -15,7 +15,7 @@ export class VerifyEmailService {
         ){}
 
     
-    async verifyEmail(verifyEmailDetails: VerifyEmailInterface): Promise<BasicResponseInterface>{
+    async verifyEmail(verifyEmailDetails: VerifyDTO): Promise<BasicResponseInterface>{
         try{
             const transaction = await this.prismaService.$transaction(async(ts) => 
                 {
