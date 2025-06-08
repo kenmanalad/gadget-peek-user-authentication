@@ -6,13 +6,15 @@ import { NodeMailerService } from "src/NodeMailer/nodemailer.service";
 import { ConfigService } from "@nestjs/config";
 import { verificationEmail } from "src/Email Template/verify.email";
 import { PasswordService } from "src/Common/Services/password.service";
+import { MailService } from "src/Common/Services/mail.service";
 @Injectable({})
 export class RegistrationService {
     constructor(
         private prismaService: PrismaService,
         private nodeMailerService: NodeMailerService,
         private configService: ConfigService,
-        private passwordService: PasswordService
+        private passwordService: PasswordService,
+        private mailService: MailService
     ){}
     async manualRegister(userDetails: ManualUserDetailsInterface): Promise<BasicResponseInterface>{
         try{
@@ -42,17 +44,11 @@ export class RegistrationService {
 
              
             //Email Details for email verification
-            let mailOption = {
-                from: {
-                    name: this.configService.get<string>("APP_NAME") || "GP",
-                    address: this.configService.get<string>("GP_EMAIL_ADDRESS") || "GP"
-                },
-                to: userDetails.emailAddress,
-                subject: `${this.configService.get<string>("APP_NAME") || "GP"} Email Verification`,
+            const mailOption = await this.mailService.mailOption({
+                emailAddress: userDetails.emailAddress,
                 text: `Your verification code is: ${code}`,
                 html: verificationEmail(code)
-
-            }
+            })
 
             const success = await this.nodeMailerService.sendEmail(mailOption);
 

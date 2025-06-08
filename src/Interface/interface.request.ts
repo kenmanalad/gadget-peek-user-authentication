@@ -14,3 +14,23 @@ export interface EmailDetailsInterface {
     text: string,
     html:string
 }
+
+export interface VerifyEmailInterface{
+    emailAddress: string,
+    code: number
+}
+
+export interface UnverifiedUserInterface {
+    id: number
+    emailAddress: string,
+    password: string,
+    userType: string,
+    code: number,
+    createdAt: Date
+}
+
+export interface MailOptionInterface {
+    text: string, 
+    emailAddress: string, 
+    html: string
+}
