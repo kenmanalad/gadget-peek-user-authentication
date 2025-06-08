@@ -44,24 +44,6 @@ export class RegisterDTO {
 
     @IsString(
         {
-            message: 'Error: registerType must be a string',
-        }
-    )
-    @IsNotEmpty(
-        {
-            message: 'Error: registerType is required',
-        }
-    )
-    @IsIn(
-        ['manual', 'oauth'], 
-        {
-            message: 'Error: registerType must be either "manual" or "oauth"',
-        }
-    )
-    registerType: string
-
-    @IsString(
-        {
             message: 'Error: userType must be a string',
         }
     )

@@ -25,20 +25,10 @@ export class VerifyEmailService {
                         }
                     });
 
-                    if(!unverifiedUser){
-                        return {
-                            success: false,
-                            message: "Error: User must be registered first before verification.",
-                            status: 400
-                        }
-                    };
-                    if(unverifiedUser.code !== verifyEmailDetails.code){
-                        return {
-                            success: false,
-                            message: "Error: Code does not match.",
-                            status: 400
-                        }
-                    }
+                    //Stops the transaction before it moves forward
+                    if(!unverifiedUser) return false;
+
+                    if(unverifiedUser.code !== verifyEmailDetails.code) return false; 
 
                     const verifiedUser = await ts.verifiedUser.create({
                         data: {
@@ -49,19 +39,16 @@ export class VerifyEmailService {
                     });
 
 
-                    if(!verifiedUser){
-                        return {
-                            success: false,
-                            message: "Error: Error occured while verifying user.",
-                            status: 400,
+                    //Stops transaction before deleting unverified user
+                    if(!verifiedUser) return false;
+                    
+                    await ts.unverifiedUser.delete({
+                        where:{
+                            emailAddress: verifiedUser.emailAddress
                         }
-                    };
+                    });
 
-                    return {
-                        success: true,
-                        message: "User successfully verified",
-                        status: 200
-                    }
+                    return verifiedUser;
                     
                 }
             );
@@ -72,11 +59,22 @@ export class VerifyEmailService {
                 html: accountVerifiedEmail()
             });
 
-            if(transaction.success){
+            if(transaction){
                 await this.nodeMailerService.sendEmail(mailOption);
             }
             
-            return transaction;
+            if(!transaction){
+                return {
+                    success: false,
+                    message: "Error: Failed to verify user, please contact an agent for assistance.",
+                    status: 400
+                }
+            }
+            return {
+                    success: true,
+                    message: "User successfully verified",
+                    status: 200
+            }
 
         }catch(error){
                 return {
