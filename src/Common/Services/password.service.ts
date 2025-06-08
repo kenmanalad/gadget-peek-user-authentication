@@ -9,6 +9,6 @@ export class PasswordService{
     }
 
     async verifyPassword(password: string, hashedPassword: string) :Promise<boolean>{
-        return bcrypt.compare(password, hashedPassword);
+        return await bcrypt.compare(password, hashedPassword);
     }
 }

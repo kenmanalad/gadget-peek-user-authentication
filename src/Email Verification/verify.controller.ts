@@ -1,14 +1,14 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { VerifyEmailService } from "./verify.service";
-import { VerifyEmailInterface } from "src/Interface/interface.request";
+import { VerifyDTO } from "./verify.dto";
 
 
-@Controller('verify')
+@Controller('security')
 export class VerifyEmailController {
     constructor(private verifyEmailService: VerifyEmailService){}
     
-    @Post()
-    async verify(@Body() verifyEmailDetails: VerifyEmailInterface){
+    @Post('verify')
+    async verify(@Body() verifyEmailDetails: VerifyDTO){
         //Responses in cases of an error will be handled by the provider
         return await this.verifyEmailService.verifyEmail(verifyEmailDetails);
     }
