@@ -8,15 +8,6 @@ export class RegistrationController{
 
     @Post("register")
     async register(@Body() unverifiedUserDetails: RegisterDTO){
-        //DTO handles the validating and transforming of the data
-        if(unverifiedUserDetails.registerType === "oauth"){
-            //still in planning phase
-            // return await this.registerService.oauthRegister(unverifiedUserDetails);
-            return {
-                success: false,
-                message: "Authentication using oauth/social platforms still developing"
-            }
-        }
         return await this.registerService.manualRegister(unverifiedUserDetails);
     }
 
