@@ -25,7 +25,22 @@ model UnverifiedUser {
 model VerifiedUser {
   id Int @id @default(autoincrement())
   emailAddress String @unique
-  password String
+  password String?
   createdAt DateTime @default(now())
-  userType String
+  userType String @default("buyer")
+  isActive Boolean @default(true)
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id Int @id @default(autoincrement())
+  userId Int
+  verifiedUser VerifiedUser @relation(fields: [userId], references: [id])
+  refreshToken String @unique
+  expirationDate DateTime
+  createdAt DateTime @default(now())
+  browser String
+  device String
+  isValid Boolean @default(true)
+  generatedBy String @default("local")
 }
