@@ -1,98 +1,115 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🔐 GadgetPeeks Authentication & Security Microservice
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-ready authentication service built with **NestJS**, **Prisma**, **MySQL**, and **Redis**. This service handles secure registration, login, token management, email verification, Google OAuth login, and account deactivation with robust validation, error handling, and request throttling.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🧩 Core Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### ✅ User Registration
+- Email and password validation using `class-validator`
+- Global `TrimPipe` to sanitize all inputs
+- Prisma error filtering for field violations and duplicates
+- Rate-limited by IP using Redis
 
-## Project setup
+### ✅ Email Verification
+- Secure one-time token emailed to the user
+- HTML email templates using Nodemailer
+- Verified email required before activating account
+- Prisma exception filters for token/record issues
+
+### ✅ Sign-In
+- Password verification via `bcrypt`
+- JWT access + refresh token issuance
+- Logs device info using `ua-parser-js`
+- Guards against brute-force using Redis-based request limiting
+
+### ✅ Token Refresh
+- Rotating refresh token system
+- HttpOnly cookies for token security
+- Validates user agent before issuing new tokens
+- Invalidates old tokens on refresh
+
+### ✅ Google OAuth Login
+- OAuth2 integration via `google-auth-library`
+- Handles user creation or login based on email match
+- Validates Google access tokens securely
+- Prisma + HTTP exception filtering for error tracing
+
+### ✅ Account Deactivation
+- Requires re-authentication (email + password)
+- Uses Prisma `$transaction()` for atomic operations
+- Deletes all refresh tokens
+- Logs action and rate limits attempts
+
+---
+
+## 🧰 GadgetPeeks Features Used
+
+### 🛡️ Guards
+
+### 🚿 Pipes
+
+### ❗ Exception Filters
+
+### 🚦 Rate Limiting
+- Redis-powered rate limiter
+- Per-IP attempt tracking for high-risk routes (register, login, verify)
+- Expiry-based logic for locking out abusive users
+- Implemented using custom guards
+
+---
+
+## 📦 Tech Stack
+
+- **Framework**: NestJS (TypeScript)
+- **ORM**: Prisma
+- **Database**: MySQL (also works with PostgreSQL)
+- **Auth**: JWT (access + refresh), OAuth2 (Google)
+- **Mail**: Nodemailer
+- **Rate Limiting**: Redis + ioredis
+- **Validation**: class-validator, DTOs
+- **Logging**: Custom logger (optional integration: Winston or Sentry)
+
+---
+
+## 📈 Future Enhancements
+- Facebook / GitHub OAuth login
+
+- Admin roles and permissions
+
+- Audit trail with activity logs
+
+- Mobile push notification integration
+
+- End-to-end testing suite with Supertest & Jest
+
+
+## 🧠 Developer Notes
+- Built for scalability and security-first APIs
+
+- Clean architecture and dependency injection pattern
+
+- Designed for integration into monorepos or microservice ecosystems
+
+- Suitable for SaaS, e-commerce, or user-account platforms
+
+
+## 🚀 Getting Started
 
 ```bash
-$ pnpm install
-```
+# Install dependencies
+npm install
 
-## Compile and run the project
+# Set environment variables
+cp .env.example .env
 
-```bash
-# development
-$ pnpm run start
+# Start Redis (Docker example)
+docker run -p 6379:6379 redis
 
-# watch mode
-$ pnpm run start:dev
+# Run the app in dev mode
+npm run start:dev
 
-# production mode
-$ pnpm run start:prod
-```
 
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Maintained by Kenneth Manalad.
+Need help implementing rate-limiting, guards, or full-stack features? Reach out!
