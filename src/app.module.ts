@@ -4,8 +4,12 @@ import { PrismaModule } from './Prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NodemailerModule } from './NodeMailer/nodemailer.module';
 import { VerifyEmailModule } from './Email Verification/verify.module';
-import { AuthModule } from './Authentication/auth.module';
+import { AuthModule } from './Authentication/Manual Authentication/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RefreshModule } from './Refresh Token/refresh.module';
+import { GoogleModule } from './Authentication/Oauth/Google/google.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 
 @Module({
@@ -13,6 +17,10 @@ import { JwtModule } from '@nestjs/jwt';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 5 }], 
+    })
+    ,
     JwtModule.registerAsync({
       global: true,
       imports: [ConfigModule],
@@ -28,7 +36,9 @@ import { JwtModule } from '@nestjs/jwt';
     RegistrationModule,
     NodemailerModule,
     VerifyEmailModule,
-    AuthModule
+    AuthModule,
+    RefreshModule,
+    GoogleModule
   ],
 })
 export class AppModule {}
