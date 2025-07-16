@@ -1,31 +1,56 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, HttpStatus, Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { PrismaService } from "src/Prisma/prisma.service";
 import { ManualUserDetailsInterface } from "src/Interface/interface.request";
 import { BasicResponseInterface } from "src/Interface/interface.response";
 import { NodeMailerService } from "src/NodeMailer/nodemailer.service";
-import { ConfigService } from "@nestjs/config";
 import { verificationEmail } from "src/Email Template/verify.email";
-import { PasswordService } from "src/Common/Services/password.service";
+import { CryptService } from "src/Common/Services/crypt.service";
 import { MailService } from "src/Common/Services/mail.service";
+import { randomInt } from 'crypto';
 @Injectable({})
 export class RegistrationService {
     constructor(
         private prismaService: PrismaService,
         private nodeMailerService: NodeMailerService,
-        private configService: ConfigService,
-        private passwordService: PasswordService,
+        private passwordService: CryptService,
         private mailService: MailService
     ){}
+    private async sendVerificationCode(emailAddress: string, code: number){
+        //Email Details for email verification
+            const mailOption = await this.mailService.mailOption({
+                emailAddress: emailAddress,
+                text: `Your verification code is: ${code}`,
+                html: verificationEmail(code)
+            })
+
+
+            // TODO: Temporary message sending  
+            // TODO: Replace with BullMQ-based messaging service  
+            // TODO: Add retry logic and queue management
+
+            //Multiple retries
+            const success = await this.nodeMailerService.sendEmail(mailOption);
+
+            if(!success) {
+                await this.prismaService.unverifiedUser.delete({
+                    where: {
+                        emailAddress: emailAddress
+                    }
+                });
+                throw new UnprocessableEntityException('Verification code could not be sent to the email address.',
+                    {
+                        cause: "Mailing error: Verification code dispatch failed."
+                    }
+                );
+            };
+    }
     async manualRegister(userDetails: ManualUserDetailsInterface): Promise<BasicResponseInterface>{
-        try{
-            //Code for email verification
-            const code = Math.floor(100000 + Math.random() * 900000);
-            const hashedPassword = await this.passwordService.hashPassword(userDetails.password);
+
+            const code = randomInt(100000, 1000000);
+            const hashedPassword = await this.passwordService.hashData(userDetails.password);
             
-            // Use Transaction
-            const unverifiedUser = await this.prismaService.$transaction(
-                async(ts) => {
-                    const user = await ts.unverifiedUser.create({
+            
+            await this.prismaService.unverifiedUser.create({
                         data:{
                             emailAddress: userDetails.emailAddress,
                             password: hashedPassword,
@@ -34,41 +59,14 @@ export class RegistrationService {
                         }
                     });
 
-                    return user;
-                }
-            );
 
+            await this.sendVerificationCode(userDetails.emailAddress, code);
 
-            //To stop sending email verification if user is not saved
-            if(!unverifiedUser) throw new Error("Error Occured");
-
-             
-            //Email Details for email verification
-            const mailOption = await this.mailService.mailOption({
-                emailAddress: userDetails.emailAddress,
-                text: `Your verification code is: ${code}`,
-                html: verificationEmail(code)
-            })
-
-            const success = await this.nodeMailerService.sendEmail(mailOption);
-
-            if(!success) throw new Error("Email not sent");
 
             return {
                 success: true,
                 message:"User Created Successfully",
-                status:200
+                status: HttpStatus.OK
             }
-        }catch(error){
-            console.log(error);
-            console.log("this is where the error occured");
-            return {
-                success: false,
-                message:"User Failed to be Created",
-                status:400
-            }
-        }
     }
-
-    //Oauth registration function will be added soon for google and facebook
 }

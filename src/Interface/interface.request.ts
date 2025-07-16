@@ -30,9 +30,3 @@ export interface MailOptionInterface {
     emailAddress: string, 
     html: string
 }
-
-export interface SignInInterface{
-    emailAddress: string,
-    password: string,
-    authType: "manual" | "oauth"
-}
