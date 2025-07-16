@@ -4,39 +4,39 @@ export class RegisterDTO {
     @IsEmail(
         {},
         {
-            message: 'Error: Email Address must be in a valid email address format',
+            message: 'Email Address must be in a valid email address format',
         }
     )
     @IsString(
         {
-            message: 'Error: Email Address must be a string',
+            message: 'Email Address must be a string',
         }
     )
     @IsNotEmpty(
         {
-            message: 'Error: Email Address is required',
+            message: 'Email Address is required',
         }
     )
     emailAddress: string;
 
     @IsString(
         {
-            message: 'Error: Password must be a string',
+            message: 'Password must be a string',
         }
     )
     @MinLength(8,
         {
-            message: 'Error: Password must not be less than 8 characters',
+            message: 'Password must not be less than 8 characters',
         }
     )
     @MaxLength(16, 
         {
-            message: 'Error: Password must not be longer than 16 characters',
+            message: 'Password must not be longer than 16 characters',
         }
     )
     @IsNotEmpty(
         {
-            message: 'Error: Password is required',
+            message: 'Password is required',
         }
     )
     //For manual registration password field must not be null/undefined/empty
@@ -44,18 +44,18 @@ export class RegisterDTO {
 
     @IsString(
         {
-            message: 'Error: userType must be a string',
+            message: 'User Type must be a string',
         }
     )
     @IsNotEmpty(
         {
-            message: 'Error: userType is required',
+            message: 'User Type is required',
         }
     )
     @IsIn(
-        ['user', 'buyer'], 
+        ['seller', 'buyer'], 
         {
-            message: 'Error: userType must be either "user" or "buyer"',
+            message: 'User Type must be either "seller" or "buyer"',
         }
     )
     userType: string
