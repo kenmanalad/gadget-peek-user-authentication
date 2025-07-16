@@ -84,6 +84,7 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 
 - End-to-end testing suite with Supertest & Jest
 
+---
 
 ## 🧠 Developer Notes
 - Built for scalability and security-first APIs
@@ -94,6 +95,12 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 
 - Suitable for SaaS, e-commerce, or user-account platforms
 
+--- 
+
+### Maintained by Kenneth Manalad.
+## Need help implementing rate-limiting, guards, or full-stack features? Reach out!
+
+---
 
 ## 🚀 Getting Started
 
@@ -110,6 +117,3 @@ docker run -p 6379:6379 redis
 # Run the app in dev mode
 npm run start:dev
 
-
-Maintained by Kenneth Manalad.
-Need help implementing rate-limiting, guards, or full-stack features? Reach out!
