@@ -97,8 +97,8 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 
 --- 
 
-### Maintained by Kenneth Manalad.
-## Need help implementing rate-limiting, guards, or full-stack features? Reach out!
+## Maintained by Kenneth Manalad.
+# Need help implementing rate-limiting, guards, or full-stack features? Reach out!
 
 ---
 
