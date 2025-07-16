@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as nodemailer from 'nodemailer';
 import { EmailDetailsInterface } from "src/Interface/interface.request";
+import { from, retry , lastValueFrom} from 'rxjs';
+import { logger } from "../Common/Services/logger";
 
 
 @Injectable({})
@@ -24,13 +26,27 @@ export class NodeMailerService{
     }
     
     async sendEmail(emailDetails: EmailDetailsInterface) :Promise<boolean>{
-        
-        const response = await this.transporter.sendMail(emailDetails);
-        
-
-        if(response.rejected.length > 0) throw new Error("Failed to send the email.");
-
-        return true;
+        try{
+            await lastValueFrom(
+                from(
+                    this.transporter.sendMail(emailDetails)).pipe(retry({ count: 5, delay: 3000}                        
+                    )
+                )
+            );
+            return true;
+        }catch(error){
+            logger.error(
+                {
+                    message: error.message ?? `Failed to send verification code to`,
+                    to: emailDetails.to,
+                    from: emailDetails.from,
+                    cause: "MAIL_ERROR",
+                    error: error
+                }
+            );
+            return false;
+            
+        }
 
     }
 }
