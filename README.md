@@ -51,6 +51,8 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 ### 🚿 Pipes
 
 ### ❗ Exception Filters
+- Explicit try/catch blocks are intentionally minimized in the codebase because NestJS exception filters are used to handle and transform thrown errors globally or at the route level. 
+- This approach promotes cleaner, more readable code while ensuring consistent error responses. Domain-specific errors (e.g., from Prisma or validation) are caught and formatted by custom filters without cluttering controller or service logic with repetitive try/catch blocks.
 
 ### 🚦 Rate Limiting
 - Redis-powered rate limiter

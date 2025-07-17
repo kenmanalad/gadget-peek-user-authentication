@@ -19,29 +19,28 @@ export class AdminService{
 
 
     async deleteUserById(id: number){
-        const user = await this.findUserById(id);
+        const deletedUser = await this.findUserById(id);
 
         await this.prismaService.$transaction(async(ts) => {
 
             await ts.refreshToken.deleteMany({
                 where: {
-                    userId: user.id
+                    userId: deletedUser.id
                 }
             });
 
             await ts.verifiedUser.delete({
                 where: {
-                    id: user.id
+                    id: deletedUser.id
                 }
             });
-            return user;
         });
 
         logger.info({
             message: `User with id number ${id} is deleted`,
-            email: user.emailAddress,
-            id: user.id,
-            createdAt: user.createdAt,
+            email: deletedUser.emailAddress,
+            id: deletedUser.id,
+            createdAt: deletedUser.createdAt,
         });
 
         return{
@@ -51,13 +50,13 @@ export class AdminService{
     }
 
     async deactivateUserById(id: number){
-        const user = await this.findUserById(id);
+        const deactivatedUser = await this.findUserById(id);
 
         await this.prismaService.$transaction(async(ts) => {
 
             await ts.refreshToken.deleteMany({
                 where: {
-                    userId: user.id
+                    userId: deactivatedUser.id
                 }
             });
 
@@ -66,22 +65,44 @@ export class AdminService{
                     isActive: false
                 },
                 where: {
-                    id: user.id
+                    id: deactivatedUser.id
                 }
             });
-            return user;
         });
 
         logger.info({
             message: `User with id number ${id} is deactivated`,
-            email: user.emailAddress,
-            id: user.id,
-            createdAt: user.createdAt,
+            email: deactivatedUser.emailAddress,
+            id: deactivatedUser.id,
+            createdAt: deactivatedUser.createdAt,
         });
 
         return{
             success: true,
             message: 'User account is deactivated'
         }
+    }
+
+    async changeUserRoleById(id: number){
+        const updatedUser = await this.prismaService.verifiedUser.update({
+            data: {
+                userType: "seller"
+            },
+            where: {id}
+        }); 
+
+        logger.info({
+            message: `User with id number ${id} is upgraded into a seller`,
+            email: updatedUser.emailAddress,
+            id: updatedUser.id,
+            createdAt: updatedUser.createdAt,
+        });
+
+        return{
+            success: true,
+            message: 'User account is upgraded into a seller'
+        }
+
+
     }
 }
