@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { TrimPipe } from './Pipe/trim.pipe';
+import { TrimPipe } from './Common/Pipe/trim.pipe';
 
 
 async function bootstrap() {

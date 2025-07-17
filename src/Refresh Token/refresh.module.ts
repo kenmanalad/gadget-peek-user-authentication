@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { CommonModule } from "src/Common/common.module";
+import { CommonModule } from "src/Common/Services/common.module";
 import { PrismaModule } from "src/Prisma/prisma.module";
 import { RefreshService } from "./refresh.service";
 import { RefreshController } from "./refresh.controller";

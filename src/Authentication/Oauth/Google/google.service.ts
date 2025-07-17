@@ -2,7 +2,6 @@ import { Injectable, InternalServerErrorException, UnauthorizedException } from 
 import { GoogleDTO } from "./google.dto";
 import { PrismaService } from "src/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { JwtService } from "@nestjs/jwt";
 import { Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
@@ -41,7 +40,7 @@ export class GoogleService{
 
         // This HTTP request will be used to send Google profile data to the profile service 
         // once the profile microservice is implemented and running.
-        // await this.httpService.post('http://localhost:3000/profile/registration/oauth',{
+        // await this.httpService.post(this.configService.get<string>('PROFILE_SERVICE_URI'),{
         //     email: profile.data.email,
         //     firstName: profile.data.given_name,
         //     lastName: profile.data.family_name,
@@ -51,7 +50,6 @@ export class GoogleService{
 
         if(!profile) throw new UnauthorizedException('Failed to retrieve user profile from Google. Please try again.');
 
-        tokens.tokens.expiry_date
         return tokens.tokens.refresh_token;
 
 
