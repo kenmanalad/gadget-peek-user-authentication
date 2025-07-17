@@ -1,19 +1,27 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { logger } from "src/Common/Services/logger";
 import { PrismaService } from "src/Prisma/prisma.service";
 
 @Injectable()
 export class AdminService{
     constructor(
-        private prismService: PrismaService
+        private prismaService: PrismaService
     ){}
-    async deleteUserById(id: number){
-        const deletedUser = await this.prismService.$transaction(async(ts) => {
-            const user = await ts.verifiedUser.findUnique({
+    private async findUserById(id: number){
+        const user = await this.prismaService.verifiedUser.findUnique({
                 where: {id}
             });
+        
+        if(!user) throw new NotFoundException('User not found. Please provide the right id number');
 
-            if(!user) throw new BadRequestException('User not found. Please provide the right id number');
+        return user;
+    }
+
+
+    async deleteUserById(id: number){
+        const user = await this.findUserById(id);
+
+        await this.prismaService.$transaction(async(ts) => {
 
             await ts.refreshToken.deleteMany({
                 where: {
@@ -31,13 +39,49 @@ export class AdminService{
 
         logger.info({
             message: `User with id number ${id} is deleted`,
-            email: deletedUser.emailAddress,
-            createdAt: deletedUser.createdAt,
+            email: user.emailAddress,
+            id: user.id,
+            createdAt: user.createdAt,
         });
 
         return{
-            sucess: true,
+            success: true,
             message: 'User account is deleted'
+        }
+    }
+
+    async deactivateUserById(id: number){
+        const user = await this.findUserById(id);
+
+        await this.prismaService.$transaction(async(ts) => {
+
+            await ts.refreshToken.deleteMany({
+                where: {
+                    userId: user.id
+                }
+            });
+
+            await ts.verifiedUser.update({
+                data:{
+                    isActive: false
+                },
+                where: {
+                    id: user.id
+                }
+            });
+            return user;
+        });
+
+        logger.info({
+            message: `User with id number ${id} is deactivated`,
+            email: user.emailAddress,
+            id: user.id,
+            createdAt: user.createdAt,
+        });
+
+        return{
+            success: true,
+            message: 'User account is deactivated'
         }
     }
 }

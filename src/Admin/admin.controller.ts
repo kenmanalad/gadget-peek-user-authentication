@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, ParseIntPipe, UseFilters, UseGuards } from "@nestjs/common";
+import { Controller, Delete, Param, ParseIntPipe, Post, UseFilters, UseGuards } from "@nestjs/common";
 import { Admin } from "src/Common/Decorators/admin.decorator";
 import { AdminService } from "./admin.service";
 import { AdminPrismaFilter } from "src/Common/Exception/Filters/Prisma/admin.prisma.filter";
@@ -18,5 +18,10 @@ export class AdminController{
     @Delete('deleteUser/:id')
     async deleteUser(@Param('id', ParseIntPipe) id: number){
         return await this.adminService.deleteUserById(id);
+    }
+
+    @Post('deactivateUser/:id')
+    async deactivateUser(@Param('id', ParseIntPipe) id: number){
+        return await this.adminService.deactivateUserById(id);
     }
 }
