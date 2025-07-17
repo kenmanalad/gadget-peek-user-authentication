@@ -3,7 +3,6 @@ import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./auth.dto";
 import { AuthenticationPrismaFilter } from "src/Common/Exception/Filters/Prisma/authentication.prisma.filter";
-import { Throttle } from "@nestjs/throttler";
 import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
 
 @Controller('security')

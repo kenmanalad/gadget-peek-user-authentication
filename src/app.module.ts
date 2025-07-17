@@ -10,6 +10,7 @@ import { RefreshModule } from './Refresh Token/refresh.module';
 import { GoogleModule } from './Authentication/Oauth/Google/google.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { AdminModule } from './Admin/admin.module';
 
 
 @Module({
@@ -38,7 +39,8 @@ import { APP_GUARD } from '@nestjs/core';
     VerifyEmailModule,
     AuthModule,
     RefreshModule,
-    GoogleModule
+    GoogleModule,
+    AdminModule
   ],
 })
 export class AppModule {}
