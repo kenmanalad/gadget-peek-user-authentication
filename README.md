@@ -42,6 +42,15 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 - Deletes all refresh tokens
 - Logs action and rate limits attempts
 
+## ✅ Admin Features
+- Upgrade user role from buyer to seller
+- Deactivate user accounts securely
+- Permanently delete user records from the system
+- Cleans up all associated refresh tokens on deactivation or deletion
+- Routes protected by a custom @Admin() decorator
+- Validates access_token from cookies and an ADMIN_SECRET in headers
+- Uses a custom guard and Reflector to verify admin-only access
+
 ---
 
 ## 🧰 GadgetPeeks Features Used
@@ -108,14 +117,11 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
-# Set environment variables
-cp .env.example .env
-
-# Start Redis (Docker example)
+# Start Redis
 docker run -p 6379:6379 redis
 
 # Run the app in dev mode
-npm run start:dev
+pnpm run start:dev
 
