@@ -32,7 +32,7 @@ export class AdminPrismaFilter extends HttpExceptionFilter{
 
         logger.error({
             message: exception?.message ?? "We are experiencing a temporary error right now. Please contact an agent.",
-            cause: exception?.cause ?? "AUTHENTICATION_ERROR",
+            cause: exception?.cause ?? "ADMIN_ERROR",
             code: exception.code ?? "NONE",
             path: request?.url,
         });
