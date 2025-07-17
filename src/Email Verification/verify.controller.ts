@@ -1,10 +1,10 @@
 import { Body, Controller, Post, UseFilters, UseGuards } from "@nestjs/common";
 import { VerifyEmailService } from "./verify.service";
 import { VerifyDTO } from "./verify.dto";
-import { RegistrationPrismaFilter } from "src/Exception/Filters/Prisma/registration.prisma.filter";
+import { RegistrationPrismaFilter } from "src/Common/Exception/Filters/Prisma/registration.prisma.filter";
 import { Throttle } from "@nestjs/throttler";
-import { VerifyPrismaFilter } from "src/Exception/Filters/Prisma/verify.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Guards/Service/request.guard";
+import { VerifyPrismaFilter } from "src/Common/Exception/Filters/Prisma/verify.prisma.filter";
+import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
 
 
 @Controller('security')

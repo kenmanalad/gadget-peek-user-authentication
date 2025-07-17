@@ -1,9 +1,9 @@
 import { Body, Controller, Post, Req, Res, UseFilters } from "@nestjs/common";
 import { RefreshTokenDTO } from "./refresh.dto";
 import { RefreshService } from "./refresh.service";
-import { RefreshTokenFilter } from "src/Exception/Filters/refresh_token_filter";
+import { RefreshTokenFilter } from "src/Common/Exception/Filters/refresh_token_filter";
 import { Response, Request } from "express";
-import { RefreshPrismaFilter } from "src/Exception/Filters/Prisma/refresh.prisma.filter";
+import { RefreshPrismaFilter } from "src/Common/Exception/Filters/Prisma/refresh.prisma.filter";
 import { Throttle } from "@nestjs/throttler";
 
 @Controller('security')

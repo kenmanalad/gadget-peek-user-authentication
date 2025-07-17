@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseFilters, UseGuards } from "@nestjs/common";
 import { RegistrationService } from "./registration.service";
 import { RegisterDTO } from "./register.dto";
-import { RegistrationPrismaFilter } from "src/Exception/Filters/Prisma/registration.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Guards/Service/request.guard";
+import { RegistrationPrismaFilter } from "src/Common/Exception/Filters/Prisma/registration.prisma.filter";
+import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
 
 
 @Controller("security")

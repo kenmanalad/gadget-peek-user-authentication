@@ -1,8 +1,8 @@
 import { Body, Controller, Post, Req, UseFilters, UseGuards } from "@nestjs/common";
 import { DeactivateDTO } from "./deactivate.dto";
 import { DeactivateService } from "./deactivate.service";
-import { DeactivatePrismaFilter } from "src/Exception/Filters/Prisma/deactivate.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Guards/Service/request.guard";
+import { DeactivatePrismaFilter } from "src/Common/Exception/Filters/Prisma/deactivate.prisma.filter";
+import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
 
 @Controller("security")
 @UseFilters(DeactivatePrismaFilter)
