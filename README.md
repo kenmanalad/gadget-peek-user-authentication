@@ -42,7 +42,7 @@ A production-ready authentication service built with **NestJS**, **Prisma**, **M
 - Deletes all refresh tokens
 - Logs action and rate limits attempts
 
-## ✅ Admin Features
+### ✅ Admin Features
 - Upgrade user role from buyer to seller
 - Deactivate user accounts securely
 - Permanently delete user records from the system
