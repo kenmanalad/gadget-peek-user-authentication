@@ -2,11 +2,12 @@ import { Body, Controller, Post, Req, UseFilters, UseGuards } from "@nestjs/comm
 import { DeactivateDTO } from "./deactivate.dto";
 import { DeactivateService } from "./deactivate.service";
 import { DeactivatePrismaFilter } from "src/Common/Exception/Filters/Prisma/deactivate.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
+import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
+import { JwtAuthGuard } from "src/Common/Guards/JWT/jwt.guard";
 
 @Controller("security")
 @UseFilters(DeactivatePrismaFilter)
-@UseGuards(RequestRateLimiterGuard("deactivate", 3, 1200))
+@UseGuards(RequestRateLimiterGuard("deactivate", 3, 1200), JwtAuthGuard)
 export class DeactivateController{
     constructor(
         private deactivateService: DeactivateService

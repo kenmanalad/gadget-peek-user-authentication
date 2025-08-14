@@ -1,6 +1,6 @@
 import { BadRequestException, HttpStatus, Injectable } from "@nestjs/common";
-import { CryptService } from "src/Common/Services/crypt.service";
-import { PrismaService } from "src/Prisma/prisma.service";
+import { CryptService } from "src/Common/Services/Utils/crypt.service";
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { DeactivateDTO } from "./deactivate.dto";
 
 @Injectable()
