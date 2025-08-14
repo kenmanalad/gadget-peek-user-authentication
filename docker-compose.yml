@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    container_name: gadget-peeks-authentication-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - mysql
+    env_file:
+      - .env.prod
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6308:6379"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    env_file:
+      - .env.prod
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -1,7 +1,6 @@
 export interface ManualUserDetailsInterface {
     emailAddress: string,
-    password: string,
-    userType: string
+    password: string
 }
 
 export interface EmailDetailsInterface {
@@ -29,4 +28,11 @@ export interface MailOptionInterface {
     text: string, 
     emailAddress: string, 
     html: string
+}
+
+
+export interface RequestUserInterface {
+    emailAddress: string,
+    sub: number,
+    role: string
 }

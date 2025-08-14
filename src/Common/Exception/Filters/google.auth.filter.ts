@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from "@nestjs/common";
 import { JsonWebTokenError, TokenExpiredError } from "@nestjs/jwt";
 import { Response } from "express";
-import { logger } from "src/Common/Services/logger";
+import { logger } from "src/Common/Services/Utils/logger";
 import { HttpStatus } from '@nestjs/common';
 import { GaxiosError } from "gaxios";
 import { HttpExceptionFilter } from "./http.exception.filter";

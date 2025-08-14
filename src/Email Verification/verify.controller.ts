@@ -4,7 +4,7 @@ import { VerifyDTO } from "./verify.dto";
 import { RegistrationPrismaFilter } from "src/Common/Exception/Filters/Prisma/registration.prisma.filter";
 import { Throttle } from "@nestjs/throttler";
 import { VerifyPrismaFilter } from "src/Common/Exception/Filters/Prisma/verify.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
+import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 
 @Controller('security')

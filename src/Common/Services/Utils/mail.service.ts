@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { MailOptionInterface } from "src/Interface/interface.request";
+import { MailOptionInterface } from "src/Common/Interface/interface.request";
 
 @Injectable({})
 export class MailService {

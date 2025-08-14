@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { AdminController } from "./admin.controller";
-import { PrismaModule } from "src/Prisma/prisma.module";
-import { CommonModule } from "src/Common/Services/common.module";
+import { PrismaModule } from "src/Common/Services/Prisma/prisma.module";
+import { CommonModule } from "src/Common/Services/Utils/common.module";
 
 // This route is restricted to the Admin Service (or Central Admin Service) only.
 // It should never be accessed externally or by unauthorized services.

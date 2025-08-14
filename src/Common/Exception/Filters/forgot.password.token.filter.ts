@@ -10,7 +10,7 @@ import { exceptions } from "winston";
     TokenExpiredError,
     JsonWebTokenError,
 )
-export class RefreshTokenFilter extends HttpExceptionFilter  {
+export class ForgotPasswordTokenFilter extends HttpExceptionFilter  {
      catch(exception: any, host: ArgumentsHost): void {
         const http = host.switchToHttp();
         const response = http.getResponse<Response>();
@@ -20,10 +20,10 @@ export class RefreshTokenFilter extends HttpExceptionFilter  {
 
         switch(exception.name){
             case "JsonWebTokenError":
-                message = "Your session is invalid. Please log in.";
+                message = "Your token is invalid. Please repeat the process.";
                 break;
             case "TokenExpiredError":
-                message = "Your session has expired. Please sign in again to continue";
+                message = "Your token has expired. Please repeat the process";
                 break;
             default:
                 message = "We are experiencing a temporary error right now. Please contact an agent.";
@@ -33,7 +33,7 @@ export class RefreshTokenFilter extends HttpExceptionFilter  {
         logger.error({
             name: exception?.name ?? "UNKNOWN_ERROR_NAME",
             message: exception?.message ?? message,
-            cause:  exception?.cause ?? "REFRESH_TOKEN_ERROR",
+            cause:  exception?.cause ?? "FORGOT_PASSWORD_TOKEN_ERROR",
             code: HttpStatus.UNAUTHORIZED,
             path: request?.url,
         });

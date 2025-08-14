@@ -41,22 +41,4 @@ export class RegisterDTO {
     )
     //For manual registration password field must not be null/undefined/empty
     password: string
-
-    @IsString(
-        {
-            message: 'User Type must be a string',
-        }
-    )
-    @IsNotEmpty(
-        {
-            message: 'User Type is required',
-        }
-    )
-    @IsIn(
-        ['seller', 'buyer'], 
-        {
-            message: 'User Type must be either "seller" or "buyer"',
-        }
-    )
-    userType: string
 }

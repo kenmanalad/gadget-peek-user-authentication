@@ -1,15 +1,20 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, ServiceUnavailableException, UnprocessableEntityException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as nodemailer from 'nodemailer';
-import { EmailDetailsInterface } from "src/Interface/interface.request";
+import { EmailDetailsInterface } from "src/Common/Interface/interface.request";
 import { from, retry , lastValueFrom} from 'rxjs';
-import { logger } from "../Common/Services/logger";
+import { logger } from "../Utils/logger";
+import { MailService } from "../Utils/mail.service";
 
 
 @Injectable({})
 export class NodeMailerService{
     private transporter;
-    constructor(private configService: ConfigService){
+    constructor(
+        private configService: ConfigService,
+        private mailService: MailService
+
+    ){
 
         this.transporter = nodemailer.createTransport(
             {
@@ -48,5 +53,32 @@ export class NodeMailerService{
             
         }
 
+
     }
+
+    async sendCode(emailAddress: string, code: number, purpose: string, htmlFormat: string){
+        //Email Details for email verification
+            const mailOption = await this.mailService.mailOption({
+                emailAddress: emailAddress,
+                text: `Your ${purpose} is: ${code}`,
+                html: htmlFormat
+            })
+
+
+            // TODO: Temporary message sending  
+            // TODO: Replace with BullMQ-based messaging service  
+            // TODO: Add retry logic and queue management
+
+            //Multiple retries
+            const success = await this.sendEmail(mailOption);
+
+            if(!success) {
+                throw new ServiceUnavailableException(`${purpose} could not be sent to the email address.`,
+                    {
+                        cause: `Mailing error: ${purpose} dispatch failed.`
+                    }
+                );
+            };
+    }
+    
 }

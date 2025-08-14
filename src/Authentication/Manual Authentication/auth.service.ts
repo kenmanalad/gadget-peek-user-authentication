@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthDTO } from "./auth.dto";
-import { PrismaService } from "src/Prisma/prisma.service";
-import { CryptService } from "src/Common/Services/crypt.service";
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
+import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { Response } from "express";
-import { TokenService } from "src/Common/Services/token.service";
+import { TokenService } from "src/Common/Services/Utils/token.service";
 import { UAParser } from 'ua-parser-js';
+import { logger } from "src/Common/Services/Utils/logger";
 
 
 
@@ -27,19 +28,53 @@ export class AuthService{
                 }
         });
 
-        if(!verifiedUser) throw new UnauthorizedException("This email address is not registered or verified");
+        if(!verifiedUser) {
+            logger.error({
+                cause: "AUTHENTICATION_ERROR_INCORRECT_CREDENTIALS",
+                message: "User submitted incorrect credentials.",
+                emailAddress: signinDetails.emailAddress
+            });
+            throw new UnauthorizedException("This email address is not registered or verified");
+        };
 
-        if(!verifiedUser.password) throw new UnauthorizedException("Password must not be empty");
+        if(!verifiedUser.isActive){
+            logger.error({
+                cause: "AUTHENTICATION_ERROR_INACTIVE_ACCOUNT",
+                message: "Inactive user trying to sign in.",
+                emailAddress: verifiedUser.emailAddress,
+                role: verifiedUser.role
+            });
+            throw new UnauthorizedException("Your account is currently deactivated. Please activate your account first before signing in");
+        }
+
+        if(!verifiedUser.password){
+            logger.error({
+                cause: "AUTHENTICATION_ERROR_NULL_PASSWORD",
+                message: "User submitted a null password.",
+                emailAddress: verifiedUser.emailAddress,
+                role: verifiedUser.role
+            });
+            throw new UnauthorizedException("Password must not be empty");
+        }
 
         const isValid = await this.passwordService.verifyData(signinDetails.password, verifiedUser?.password);
 
-        if(!isValid) throw new UnauthorizedException('The password you entered is incorrect.');
+        if(!isValid){
+            logger.error({
+                cause: "AUTHENTICATION_ERROR_INCORRECT_PASSWORD",
+                message: "User submitted an incorrect password.",
+                emailAddress: verifiedUser.emailAddress,
+                role: verifiedUser.role
+            });
+            throw new UnauthorizedException('The password you entered is incorrect.');
+        }
 
         const { access_token, refresh_token } = await this.tokenService.produceToken(
             verifiedUser.emailAddress, 
             verifiedUser.id,
             browser.name ?? 'unknown',
-            device.model ?? 'unknown'
+            device.model ?? 'unknown',
+            verifiedUser.role
         );
         
 
@@ -55,7 +90,8 @@ export class AuthService{
                 success: true,
                 message: "Signed in successfully",
                 status: 200,
-                access_token: access_token
+                access_token: access_token,
+                role: verifiedUser.role
         }
     
     }

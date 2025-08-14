@@ -1,127 +1,174 @@
 # 🔐 GadgetPeeks Authentication & Security Microservice
 
-A production-ready authentication service built with **NestJS**, **Prisma**, **MySQL**, and **Redis**. This service handles secure registration, login, token management, email verification, Google OAuth login, and account deactivation with robust validation, error handling, and request throttling.
+A **production-ready authentication service** built with **NestJS, Prisma, MySQL, and Redis**.  
+It offers **secure registration, login, token management, email verification, Google OAuth login, password reset, account deactivation, and admin role management** with robust validation, error handling, and rate limiting.
 
 ---
 
 ## 🧩 Core Features
 
-### ✅ User Registration
-- Email and password validation using `class-validator`
-- Global `TrimPipe` to sanitize all inputs
-- Prisma error filtering for field violations and duplicates
-- Rate-limited by IP using Redis
-
-### ✅ Email Verification
-- Secure one-time token emailed to the user
-- HTML email templates using Nodemailer
-- Verified email required before activating account
-- Prisma exception filters for token/record issues
-
-### ✅ Sign-In
-- Password verification via `bcrypt`
-- JWT access + refresh token issuance
-- Logs device info using `ua-parser-js`
-- Guards against brute-force using Redis-based request limiting
-
-### ✅ Token Refresh
-- Rotating refresh token system
-- HttpOnly cookies for token security
-- Validates user agent before issuing new tokens
-- Invalidates old tokens on refresh
-
-### ✅ Google OAuth Login
-- OAuth2 integration via `google-auth-library`
-- Handles user creation or login based on email match
-- Validates Google access tokens securely
-- Prisma + HTTP exception filtering for error tracing
-
-### ✅ Account Deactivation
-- Requires re-authentication (email + password)
-- Uses Prisma `$transaction()` for atomic operations
-- Deletes all refresh tokens
-- Logs action and rate limits attempts
-
-### ✅ Admin Features
-- Upgrade user role from buyer to seller
-- Deactivate user accounts securely
-- Permanently delete user records from the system
-- Cleans up all associated refresh tokens on deactivation or deletion
-- Routes protected by a custom @Admin() decorator
-- Validates access_token from cookies and an ADMIN_SECRET in headers
-- Uses a custom guard and Reflector to verify admin-only access
+### **1. User Registration (Manual)**
+- **Input handling**: DTOs with `class-validator` for validation, trimming, and transformation.
+- **Security**:
+  - Password hashing with `bcrypt`.
+  - Rate limiting via Redis to prevent spam and brute-force attacks.
+  - Prisma error filtering for:
+    - Unique constraint violations (duplicate email).
+    - Field-level validation errors.
+  - HTTP exception filtering for invalid requests.
+- **Flow**:
+  1. Accepts email + password.
+  2. Validates and sanitizes data.
+  3. Stores user record with hashed password.
+  4. Triggers **email verification process**.
 
 ---
 
-## 🧰 GadgetPeeks Features Used
+### **2. Email Verification**
+- **Post-registration**:
+  - Sends a secure verification code to the registered email (via `nodemailer`).
+  - Will use a dedicated messaging service (**BullMQ + AWS SNS/SQS**) in the future.
+- **Validation**:
+  - Rate limited via Redis.
+  - DTO validation & sanitization.
+  - Exception filters for Prisma & HTTP errors.
+- **Flow**:
+  1. User receives verification code.
+  2. Code is validated.
+  3. Account is marked as verified.
 
-### 🛡️ Guards
+---
 
-### 🚿 Pipes
+### **3. Authentication**
+- **Manual login**:
+  - Email + password authentication.
+  - Password verification via `bcrypt`.
+- **OAuth login**:
+  - Google OAuth2 via `google-auth-library`.
+  - Matches existing account by email or creates a new one.
+- **Security**:
+  - Rate limiting via Redis.
+  - JWT access + refresh token system.
+  - Guards against brute-force attempts.
+  - Exception filters for Prisma, JWT, and HTTP errors.
+  - DTO validation & sanitization.
 
-### ❗ Exception Filters
-- Explicit try/catch blocks are intentionally minimized in the codebase because NestJS exception filters are used to handle and transform thrown errors globally or at the route level. 
-- This approach promotes cleaner, more readable code while ensuring consistent error responses. Domain-specific errors (e.g., from Prisma or validation) are caught and formatted by custom filters without cluttering controller or service logic with repetitive try/catch blocks.
+---
 
-### 🚦 Rate Limiting
-- Redis-powered rate limiter
-- Per-IP attempt tracking for high-risk routes (register, login, verify)
-- Expiry-based logic for locking out abusive users
-- Implemented using custom guards
+### **4. Forgot Password**
+- **3-Step Process**:
+  1. **Request**: User submits email → Service sends secure, expiring code to email.
+  2. **Verify Code**: User submits code → Service validates and issues short-lived JWT.
+  3. **Reset Password**: User submits new password + token → Password updated after token validation.
+- **Security**:
+  - Rate limiting via Redis.
+  - Exception filters for Prisma, JWT, and HTTP errors.
+  - DTO validation & sanitization.
+  - Code expiration and multiple-request limits.
+
+---
+
+### **5. Refresh Token**
+- **Rotating refresh token** strategy:
+  - Validates refresh token.
+  - Deletes **all** existing refresh tokens for higher security.
+  - Issues new access + refresh tokens.
+  - Saves new refresh token in database.
+- **Security**:
+  - Rate limiting via Redis.
+  - Exception filters for Prisma, JWT, and HTTP errors.
+  - DTO validation & sanitization.
+
+---
+
+### **6. Account Deactivation**
+- **Auth**: Requires `JwtAuthGuard` via Passport JWT.
+- **Soft delete**: Marks account as inactive (`isActive: false`) instead of full deletion.
+- **Security**:
+  - Rate limiting via Redis.
+  - Exception filters for Prisma, JWT, and HTTP errors.
+  - DTO validation & sanitization.
+
+---
+
+### **7. Admin Features**
+- **Role management**:
+  - Upgrade user role from buyer → seller.
+  - Deactivate user accounts (soft delete).
+- **Access control**:
+  - Protected by custom `@Admin()` decorator + guard.
+  - Validates `access_token` from cookies and `ADMIN_SECRET` from headers.
+- **Security**:
+  - Rate limiting via Redis.
+  - Exception filters for Prisma, JWT, and HTTP errors.
+  - DTO validation & sanitization.
+
+---
+
+## 🛡️ Security & Reliability Components
+
+- **Guards**:
+  - Rate Limiter Guard (Redis-powered).
+  - `JwtAuthGuard` (Passport JWT).
+  - Admin-only guard with custom decorator.
+- **Pipes**:
+  - Global TrimPipe.
+  - DTO validation & transformation.
+- **Exception Filters**:
+  - Prisma-specific error filter.
+  - JWT error filter.
+  - HTTP exception filter.
 
 ---
 
 ## 📦 Tech Stack
 
-- **Framework**: NestJS (TypeScript)
-- **ORM**: Prisma
-- **Database**: MySQL (also works with PostgreSQL)
-- **Auth**: JWT (access + refresh), OAuth2 (Google)
-- **Mail**: Nodemailer
-- **Rate Limiting**: Redis + ioredis
-- **Validation**: class-validator, DTOs
-- **Logging**: Custom logger (optional integration: Winston or Sentry)
+| Category         | Technology |
+|------------------|------------|
+| **Framework**    | NestJS (TypeScript) |
+| **ORM**          | Prisma |
+| **Database**     | MySQL / PostgreSQL (AWS RDS compatible) |
+| **Auth**         | JWT (access + refresh), Passport, OAuth2 (Google) |
+| **Mail**         | Nodemailer → Future: BullMQ + AWS SNS/SQS |
+| **Rate Limiting**| Redis + ioredis |
+| **Validation**   | class-validator, DTOs |
+| **Logging**      | Winston (custom logger) |
+| **Containerization** | Docker + Docker Compose |
 
 ---
 
-## 📈 Future Enhancements
-- Facebook / GitHub OAuth login
-
-- Admin roles and permissions
-
-- Audit trail with activity logs
-
-- Mobile push notification integration
-
-- End-to-end testing suite with Supertest & Jest
-
----
-
-## 🧠 Developer Notes
-- Built for scalability and security-first APIs
-
-- Clean architecture and dependency injection pattern
-
-- Designed for integration into monorepos or microservice ecosystems
-
-- Suitable for SaaS, e-commerce, or user-account platforms
-
---- 
-
-## Maintained by Kenneth Manalad.
 
 
----
 
-## 🚀 Getting Started
+📈 Future Enhancements
+
+Facebook / GitHub OAuth login.
+
+Messaging queue for all email flows.
+
+Audit trail with activity logs.
+
+Mobile push notifications.
+
+End-to-end test suite with Supertest + Jest.
+
+👨‍💻 Maintained by: Kenneth Manalad
+
+
+## 🐳 Dockerized Setup
 
 ```bash
-# Install dependencies
-pnpm install
+# Build containers
+docker-compose build
 
-# Start Redis
-docker run -p 6379:6379 redis
+# Start MySQL
+docker-compose up -d mysql
 
-# Run the app in dev mode
-pnpm run start:dev
+# Deploy DB migrations
+docker-compose run --rm app npx prisma migrate deploy
 
+# Generate Prisma client
+docker-compose run --rm app npx prisma generate
+
+# Start the app + Redis
+docker-compose up

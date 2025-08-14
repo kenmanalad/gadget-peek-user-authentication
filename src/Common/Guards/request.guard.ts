@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Type } from "@nestjs/common";
 import { Request } from "express";
 import { Observable } from "rxjs";
-import { RedisService } from "src/Common/Services/redis.service";
+import { RedisService } from "src/Common/Services/Utils/redis.service";
 
 export const RequestRateLimiterGuard = (purpose: string, limit: number, EX: number): Type<CanActivate> => {
 

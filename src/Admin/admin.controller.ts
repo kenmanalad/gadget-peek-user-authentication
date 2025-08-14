@@ -1,34 +1,35 @@
-import { Controller, Delete, Param, ParseIntPipe, Post, UseFilters, UseGuards } from "@nestjs/common";
+import { Controller, Param, ParseIntPipe, Put, UseFilters, UseGuards } from "@nestjs/common";
 import { Admin } from "src/Common/Decorators/admin.decorator";
 import { AdminService } from "./admin.service";
 import { AdminPrismaFilter } from "src/Common/Exception/Filters/Prisma/admin.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
-import { AdminGuard } from "src/Common/Guards/Service/admin.guard";
+import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
+import { AdminGuard } from "src/Common/Guards/admin.guard";
 
-// This route is restricted to the Admin Service (or Central Admin Service) only.
+// This route is restricted to the Admin Service only.
 // It should never be accessed externally or by unauthorized services.
 // Ensure `AdminGuard` is always applied to enforce this restriction.
 @Controller('admin')
 @Admin()
+@UseGuards(AdminGuard)
 @UseFilters(AdminPrismaFilter)
-@UseGuards(RequestRateLimiterGuard('admin-delete-user',2, 60), AdminGuard)
+// Admin feature uses access tokens sent via secure HttpOnly cookies instead of Bearer Authorization headers.
+// All security concerns such as CSRF protection, HTTPS, SameSite, short-lived tokens and etc., are already addressed.
+// Token generation and management are handled by the Admin Service.
 export class AdminController{
     constructor(
         private adminService: AdminService
     ){}
-    @Delete('delete-user/:id')
-    async deleteUser(@Param('id', ParseIntPipe) id: number){
-        return await this.adminService.deleteUserById(id);
-    }
 
-    @Post('deactivate-user/:id')
+    @Put('deactivate-user/:id')
+    @UseGuards(RequestRateLimiterGuard('admin-deactivate-user',5, 60))
     async deactivateUser(@Param('id', ParseIntPipe) id: number){
         return await this.adminService.deactivateUserById(id);
     }
 
-    @Post('upgrade-seller/:id')
+    @Put('change-user-type/:id')
+    @UseGuards(RequestRateLimiterGuard('admin-change-user-type',5, 60))
     async changeUserType(@Param('id', ParseIntPipe) id: number){
-        return await this.adminService.changeUserRoleById(id);
+        return await this.adminService.changeUserTypeToSeller(id);
     }
 
 }

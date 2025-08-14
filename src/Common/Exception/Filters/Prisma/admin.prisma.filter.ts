@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, HttpException, HttpStatus } from "@nestjs/common"
 import { HttpExceptionFilter } from "../http.exception.filter";
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
-import { logger } from "src/Common/Services/logger";
+import { logger } from "src/Common/Services/Utils/logger";
 
 @Catch(
     Prisma.PrismaClientInitializationError,

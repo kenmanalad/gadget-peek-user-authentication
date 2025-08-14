@@ -3,7 +3,7 @@ import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./auth.dto";
 import { AuthenticationPrismaFilter } from "src/Common/Exception/Filters/Prisma/authentication.prisma.filter";
-import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
+import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller('security')
 @UseGuards(RequestRateLimiterGuard("authentication", 5, 60))

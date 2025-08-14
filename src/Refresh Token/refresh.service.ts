@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { RefreshTokenDTO } from "./refresh.dto";
-import { PrismaService } from "src/Prisma/prisma.service";
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { CryptService } from "src/Common/Services/crypt.service";
+import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { UAParser } from 'ua-parser-js';
 import { connect } from "http2";
-import { TokenService } from "src/Common/Services/token.service";
+import { TokenService } from "src/Common/Services/Utils/token.service";
 import { Response } from "express";
 
 @Injectable()
@@ -18,11 +18,11 @@ export class RefreshService{
         private cryptService: CryptService,
         private tokenService: TokenService
     ){}
-    async verifyRefreshToken(refreshTokenDetails: RefreshTokenDTO, userAgent: string, response: Response){
+    async verifyRefreshToken(token: string, userAgent: string, response: Response){
 
         const { browser, device } = UAParser(userAgent);
 
-        const verified = await this.jwtService.verifyAsync(refreshTokenDetails.refreshToken, 
+        const verified = await this.jwtService.verifyAsync(token, 
                 {
                     secret: this.configService.get<string>('REFRESH_TOKEN_SECRET')
                 }
@@ -41,7 +41,7 @@ export class RefreshService{
                         cause: "The refresh token is either expired or invalid"
                     });
         
-        const isTokenValid = await this.cryptService.verifyData(refreshTokenDetails.refreshToken, savedRefreshToken.refreshToken);
+        const isTokenValid = await this.cryptService.verifyData(token, savedRefreshToken.refreshToken);
 
 
         if(!isTokenValid) throw new UnauthorizedException("Your session has expired, Please sign in again.", {
@@ -59,7 +59,8 @@ export class RefreshService{
             verified.emailAddress,
             verified.sub,
             browser.name ?? "unknown",
-            device.model ?? "unknown"
+            device.model ?? "unknown",
+            verified.role
         );
 
         response.cookie("refresh_token", refresh_token,{

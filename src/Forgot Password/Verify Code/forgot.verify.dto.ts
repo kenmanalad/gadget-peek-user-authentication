@@ -1,6 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength, IsIn } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength, IsIn, IsNumber } from "class-validator";
 
-export class RefreshTokenDTO {
+export class VerifyCodeDTO {
     @IsEmail(
         {},
         {
@@ -18,17 +18,20 @@ export class RefreshTokenDTO {
         }
     )
     emailAddress: string;
-
-    @IsString(
+    
+    @IsNumber(
+        {},
         {
-            message: 'Refresh Token must be a string',
+            message: 'Code must be a number',
         }
     )
     @IsNotEmpty(
         {
-            message: 'Refresh Token is required',
+            message: 'Code is required',
         }
     )
-    refreshToken: string
+    code: number
+
+
 
 }

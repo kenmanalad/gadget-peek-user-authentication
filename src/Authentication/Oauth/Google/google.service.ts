@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { GoogleDTO } from "./google.dto";
-import { PrismaService } from "src/Prisma/prisma.service";
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { HttpService } from "@nestjs/axios";
 import { UAParser } from "ua-parser-js";
-import { TokenService } from "src/Common/Services/token.service";
+import { TokenService } from "src/Common/Services/Utils/token.service";
 @Injectable()
 export class GoogleService{
     constructor(
@@ -92,7 +92,8 @@ export class GoogleService{
             googleAuthDetails.emailAddress, 
             user.id, 
             browser.name ?? "unknown",
-            device.model ?? "unknown"
+            device.model ?? "unknown",
+            user.role
         );
 
         response.cookie("refresh_token", refresh_token,{

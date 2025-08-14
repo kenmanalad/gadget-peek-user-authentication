@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { logger } from "src/Common/Services/logger";
-import { PrismaService } from "src/Prisma/prisma.service";
+import { logger } from "src/Common/Services/Utils/logger";
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 
 @Injectable()
 export class AdminService{
@@ -18,36 +18,6 @@ export class AdminService{
     }
 
 
-    async deleteUserById(id: number){
-        const deletedUser = await this.findUserById(id);
-
-        await this.prismaService.$transaction(async(ts) => {
-
-            await ts.refreshToken.deleteMany({
-                where: {
-                    userId: deletedUser.id
-                }
-            });
-
-            await ts.verifiedUser.delete({
-                where: {
-                    id: deletedUser.id
-                }
-            });
-        });
-
-        logger.info({
-            message: `User with id number ${id} is deleted`,
-            email: deletedUser.emailAddress,
-            id: deletedUser.id,
-            createdAt: deletedUser.createdAt,
-        });
-
-        return{
-            success: true,
-            message: 'User account is deleted'
-        }
-    }
 
     async deactivateUserById(id: number){
         const deactivatedUser = await this.findUserById(id);
@@ -83,26 +53,27 @@ export class AdminService{
         }
     }
 
-    async changeUserRoleById(id: number){
-        const updatedUser = await this.prismaService.verifiedUser.update({
-            data: {
-                userType: "seller"
+    async changeUserTypeToSeller(id: number){
+        const user = await this.prismaService.verifiedUser.update({
+            where: {
+                id
             },
-            where: {id}
-        }); 
+            data:{
+                role: "seller"
+            }
+        });
+
 
         logger.info({
             message: `User with id number ${id} is upgraded into a seller`,
-            email: updatedUser.emailAddress,
-            id: updatedUser.id,
-            createdAt: updatedUser.createdAt,
+            email: user.emailAddress,
+            id: user.id,
+            createdAt: user.createdAt,
         });
 
         return{
             success: true,
-            message: 'User account is upgraded into a seller'
+            message: 'User is successfully upgraded into a seller.'
         }
-
-
     }
 }

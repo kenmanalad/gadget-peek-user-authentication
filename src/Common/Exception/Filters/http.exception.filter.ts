@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/commo
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { HttpException } from "@nestjs/common";
-import { logger } from "src/Common/Services/logger";
+import { logger } from "src/Common/Services/Utils/logger";
 
 @Catch(
     HttpException
@@ -35,6 +35,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 break;
             case HttpStatus.INTERNAL_SERVER_ERROR:
                 customMessage = 'Something went wrong. Please try again later.';
+                break;
+            case HttpStatus.TOO_MANY_REQUESTS:
+                customMessage = "Too many requests. Please try again later."
                 break;
             default:
                 customMessage = "We are experiencing a temporary error right now. Please contact an agent.";

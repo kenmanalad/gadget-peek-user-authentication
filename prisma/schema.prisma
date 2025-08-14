@@ -18,8 +18,9 @@ model UnverifiedUser {
   emailAddress String @unique
   password String
   createdAt DateTime @default(now())
-  code Int?
-  userType String
+  codeExpirationDate DateTime
+  code Int @default(0)
+  reset DateTime
 }
 
 model VerifiedUser {
@@ -27,8 +28,9 @@ model VerifiedUser {
   emailAddress String @unique
   password String?
   createdAt DateTime @default(now())
-  userType String @default("buyer")
+  role String @default("buyer")
   isActive Boolean @default(true)
+  updateCode Int @default(0)
   refreshTokens RefreshToken[]
 }
 
@@ -43,4 +45,12 @@ model RefreshToken {
   device String
   isValid Boolean @default(true)
   generatedBy String @default("local")
+}
+
+model ForgetPassword{
+  id Int @id @default(autoincrement())
+  emailAddress String
+  code Int
+  codeExpiration DateTime
+  reset DateTime
 }

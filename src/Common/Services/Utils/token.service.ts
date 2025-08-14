@@ -1,8 +1,8 @@
 import { InternalServerErrorException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "src/Prisma/prisma.service";
-import { logger } from "../../Common/Services/logger"
+import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
+import { logger } from "./logger"
 import { Prisma } from "@prisma/client";
 import { CryptService } from "./crypt.service";
 
@@ -22,9 +22,22 @@ export class TokenService {
         private cryptService: CryptService
     ){
     }
-    
-    async produceToken(emailAddress: string, id: number,browser: string, device: string): Promise<TokenPair>{
-        let payload = { emailAddress: emailAddress, sub: id }
+    async forgotPasswordToken(emailAddress: string){
+        let payload = {
+            emailAddress,
+            purpose: "forgot-password"
+        }
+        const token = await this.jwtService.signAsync(payload,
+            {
+                secret: this.configService.get<string>('FORGET_PASSWORD_TOKEN_SECRET'),
+                expiresIn: '3m'
+            }
+        )
+
+        return token;
+    }
+    async produceToken(emailAddress: string, id: number,browser: string, device: string, role: string): Promise<TokenPair>{
+        let payload = { emailAddress, sub: id, role }
 
         const access_token = await this.jwtService.signAsync(payload);
 

@@ -4,8 +4,7 @@ import { GoogleDTO } from "./google.dto";
 import { Request, Response } from "express";
 import { GooglePrismaFilter } from "src/Common/Exception/Filters/Prisma/google.prisma.filter";
 import { GoogleAuthFilter } from "src/Common/Exception/Filters/google.auth.filter";
-import { Throttle } from "@nestjs/throttler";
-import { RequestRateLimiterGuard } from "src/Common/Guards/Service/request.guard";
+import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller('security')
 @UseFilters(new GooglePrismaFilter(), new GoogleAuthFilter())
