@@ -5,6 +5,7 @@ import { NodeMailerService } from "src/Common/Services/NodeMailer/nodemailer.ser
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { logger } from "src/Common/Services/Utils/logger";
 import { MailService } from "src/Common/Services/Utils/mail.service";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 import { verificationEmail } from "src/Email Template/verify.email";
 
 @Injectable()
@@ -13,7 +14,7 @@ export class SendCodeUpdateEmailService{
         private nodeMailerService: NodeMailerService,
         private mailService: MailService, 
         private prismaService: PrismaService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){}
 
     async sendVerificationCode(emailAddress: string){
@@ -61,14 +62,11 @@ export class SendCodeUpdateEmailService{
 
 
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta()
         return {
             success: true,
             message: "Verification code sent successfully.",
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
     }
 }

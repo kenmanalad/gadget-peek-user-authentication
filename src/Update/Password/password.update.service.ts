@@ -4,6 +4,7 @@ import { PasswordUpdateDTO } from "./password.update.dto";
 import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { logger } from "src/Common/Services/Utils/logger";
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 
 @Injectable()
@@ -11,7 +12,7 @@ export class PasswordUpdateService{
     constructor(
         private prismaService: PrismaService,
         private passwordService: CryptService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){}
 
     async updatePassword(id: number, updatePassword: PasswordUpdateDTO){
@@ -51,15 +52,12 @@ export class PasswordUpdateService{
             }
         });
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
 
         return {
             success: true,
             message: "Password successfully updated.",
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
     }
 }

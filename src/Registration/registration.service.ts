@@ -8,6 +8,7 @@ import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { MailService } from "src/Common/Services/Utils/mail.service";
 import { randomInt } from 'crypto';
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 @Injectable({})
 export class RegistrationService {
     constructor(
@@ -15,7 +16,7 @@ export class RegistrationService {
         private nodeMailerService: NodeMailerService,
         private passwordService: CryptService,
         private mailService: MailService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){}
     private async sendVerificationCode(emailAddress: string, code: number){
         //Email Details for email verification
@@ -88,14 +89,11 @@ export class RegistrationService {
             await this.sendVerificationCode(userDetails.emailAddress, code);
 
 
-            const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+            const meta = this.metaService.meta();
             return {
                 success: true,
                 message:"User Created Successfully",
-                meta: {
-                    timestamp: new Date().toISOString(),
-                    apiVersion
-                }
+                meta
             }
     }
 }

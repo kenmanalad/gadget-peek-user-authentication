@@ -2,15 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { logger } from "src/Common/Services/Utils/logger";
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 @Injectable()
 export class AdminService{
-    private apiVersion: number;
     constructor(
         private prismaService: PrismaService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){
-        this.apiVersion = this.configService.get<number>('API_VERSION') ?? 1.0;
     }
     private async findUserById(id: number){
         const user = await this.prismaService.verifiedUser.findUnique({
@@ -52,13 +51,11 @@ export class AdminService{
             createdAt: deactivatedUser.createdAt,
         });
 
+        const meta = this.metaService.meta();
         return{
             success: true,
             message: `User with id number ${id}, email address ${deactivatedUser.emailAddress} is deactivated`,
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion: this.apiVersion
-            }
+            meta
         }
     }
 
@@ -80,13 +77,11 @@ export class AdminService{
             createdAt: user.createdAt,
         });
 
+        const meta = this.metaService.meta();
         return{
             success: true,
             message: `User with id number ${id}, email address ${user.emailAddress} is successfully upgraded into a seller.`,
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion: this.apiVersion
-            }
+            meta
         }
     }
 }

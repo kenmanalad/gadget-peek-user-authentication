@@ -3,12 +3,13 @@ import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ChangeEmailDTO } from "./change.email.dto";
 import { logger } from "src/Common/Services/Utils/logger";
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 @Injectable()
 export class ChangeEmailService{
     constructor(
         private prismaService: PrismaService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){}
 
     async changeEmailAddress(id: number, updateInfo: ChangeEmailDTO){
@@ -45,15 +46,12 @@ export class ChangeEmailService{
             }
         });
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
 
         return {
             success: true,
             message: "Email address successfully updated.",
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
     }
 }

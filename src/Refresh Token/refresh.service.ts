@@ -8,6 +8,7 @@ import { UAParser } from 'ua-parser-js';
 import { connect } from "http2";
 import { TokenService } from "src/Common/Services/Utils/token.service";
 import { Response } from "express";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 @Injectable()
 export class RefreshService{
@@ -16,7 +17,8 @@ export class RefreshService{
         private configService: ConfigService,
         private jwtService: JwtService,
         private cryptService: CryptService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        private metaService: MetaResponseService
     ){}
     async verifyRefreshToken(token: string, userAgent: string, response: Response){
 
@@ -71,17 +73,14 @@ export class RefreshService{
         });
         
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
         return {
             success: true,
             message: "New access token generated.",
             tokens: {
                 access_token
             },
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
     }
 }

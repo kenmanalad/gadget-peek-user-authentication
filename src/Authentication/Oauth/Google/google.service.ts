@@ -11,13 +11,15 @@ import { TokenService } from "src/Common/Services/Utils/token.service";
 import { logger } from "src/Common/Services/Utils/logger";
 import { lastValueFrom } from "rxjs";
 import { timeStamp } from "console";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 @Injectable()
 export class GoogleService{
     constructor(
         private prismaService: PrismaService,
         private configService: ConfigService,
         private httpService: HttpService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        private metaService: MetaResponseService
     ){}
 
 
@@ -152,17 +154,14 @@ export class GoogleService{
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta(); 
         return {
             success: true,
             message: "User successfully signed in",
             tokens: {
                 access_token
             },
-            meta:{
-                timeStamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
 
     }

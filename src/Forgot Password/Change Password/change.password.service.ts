@@ -7,6 +7,7 @@ import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { MailService } from "src/Common/Services/Utils/mail.service";
 import { changePasswordEmail } from "src/Email Template/change.password.template";
 import { NodeMailerService } from "src/Common/Services/NodeMailer/nodemailer.service";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 @Injectable()
 export class ChangePasswordService{
@@ -16,7 +17,8 @@ export class ChangePasswordService{
         private configService: ConfigService,
         private passwordService: CryptService,
         private mailService: MailService,
-        private nodeMailerService: NodeMailerService
+        private nodeMailerService: NodeMailerService,
+        private metaService: MetaResponseService
     ){}
 
     async changePassword(changePasswordCredentials: ChangePasswordDTO){
@@ -52,14 +54,11 @@ export class ChangePasswordService{
         // Temporary message sending  
         await this.nodeMailerService.sendEmail(mailOption);
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
         return{
             success: true,
             message: "Password Changed Successfully",
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
     }
 }

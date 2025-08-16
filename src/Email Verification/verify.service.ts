@@ -7,6 +7,7 @@ import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { VerifyDTO } from "./verify.dto";
 import { logger } from "src/Common/Services/Utils/logger";
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 @Injectable({})
 export class VerifyEmailService {
@@ -14,7 +15,7 @@ export class VerifyEmailService {
             private prismaService: PrismaService,
             private nodeMailerService: NodeMailerService,
             private mailService: MailService,
-            private configService: ConfigService
+            private metaService: MetaResponseService
         ){}
 
     
@@ -62,14 +63,11 @@ export class VerifyEmailService {
         await this.nodeMailerService.sendEmail(mailOption);
         
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
         return {
                 success: true,
                 message: "User successfully verified",
-                meta: {
-                    timestamp: new Date().toISOString(),
-                    apiVersion
-                }
+                meta
         }
     }
 }

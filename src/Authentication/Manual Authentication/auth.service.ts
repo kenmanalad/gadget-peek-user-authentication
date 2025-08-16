@@ -9,6 +9,7 @@ import { logger } from "src/Common/Services/Utils/logger";
 import { formatDateTime } from "src/Common/Services/Utils/formatDateTime";
 import { timestamp } from "rxjs";
 import { ConfigService } from "@nestjs/config";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 
 
@@ -19,7 +20,7 @@ export class AuthService{
         private prismaService: PrismaService,
         private passwordService: CryptService,
         private tokenService: TokenService,
-        private configService: ConfigService
+        private metaService: MetaResponseService
     ){}
     async manualSignin(signinDetails: AuthDTO, response: Response, userAgent: string){
 
@@ -91,7 +92,7 @@ export class AuthService{
         });
 
     
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
         return{
                 success: true,
                 message: "Signed in successfully",
@@ -101,10 +102,7 @@ export class AuthService{
                 data: {
                     role: verifiedUser.role
                 },
-                meta: {
-                    timestamp: new Date().toISOString(),
-                    apiVersion
-                }
+                meta
 
         }
     

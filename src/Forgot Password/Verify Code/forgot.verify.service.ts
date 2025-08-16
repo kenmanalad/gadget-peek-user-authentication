@@ -3,6 +3,7 @@ import { VerifyCodeDTO } from "./forgot.verify.dto";
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { TokenService } from "src/Common/Services/Utils/token.service";
+import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 
 @Injectable()
@@ -10,7 +11,7 @@ export class ForgotPasswordVerifyService{
     constructor(
         private prismaService: PrismaService,
         private tokenService: TokenService,
-        private configService: ConfigService 
+        private metaService: MetaResponseService 
 
     ){}
     async verifyCode(forgotPasswordCredentials: VerifyCodeDTO){
@@ -34,17 +35,14 @@ export class ForgotPasswordVerifyService{
             }
         });
 
-        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+        const meta = this.metaService.meta();
         return {
             success: true,
             message: "The code is successfully verified.",
             tokens: {
                 forgotPasswordToken
             },
-            meta: {
-                timestamp: new Date().toISOString(),
-                apiVersion
-            }
+            meta
         }
         
 
