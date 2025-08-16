@@ -6,6 +6,9 @@ import { Response } from "express";
 import { TokenService } from "src/Common/Services/Utils/token.service";
 import { UAParser } from 'ua-parser-js';
 import { logger } from "src/Common/Services/Utils/logger";
+import { formatDateTime } from "src/Common/Services/Utils/formatDateTime";
+import { timestamp } from "rxjs";
+import { ConfigService } from "@nestjs/config";
 
 
 
@@ -15,7 +18,8 @@ export class AuthService{
     constructor(
         private prismaService: PrismaService,
         private passwordService: CryptService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        private configService: ConfigService
     ){}
     async manualSignin(signinDetails: AuthDTO, response: Response, userAgent: string){
 
@@ -86,12 +90,22 @@ export class AuthService{
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
+    
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return{
                 success: true,
                 message: "Signed in successfully",
-                status: 200,
-                access_token: access_token,
-                role: verifiedUser.role
+                tokens: {
+                    access_token
+                },
+                data: {
+                    role: verifiedUser.role
+                },
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    apiVersion
+                }
+
         }
     
     }

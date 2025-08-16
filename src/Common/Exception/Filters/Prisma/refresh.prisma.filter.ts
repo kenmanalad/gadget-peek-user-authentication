@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { HttpException } from "@nestjs/common";
 import { logger } from "src/Common/Services/Utils/logger";
 import { HttpExceptionFilter } from "../http.exception.filter";
+import { ConfigService } from "@nestjs/config";
 
 @Catch(
     Prisma.PrismaClientInitializationError,
@@ -14,15 +15,25 @@ import { HttpExceptionFilter } from "../http.exception.filter";
     HttpException
 )
 export class RefreshPrismaFilter extends HttpExceptionFilter{
+    constructor(
+        private configService: ConfigService
+    ){
+        super()
+    }
     catch(exception: any, host: ArgumentsHost): void {
         const http = host.switchToHttp();
         const response = http.getResponse<Response>();
         const request = http.getRequest<Request>();
 
         const responseObject = (message: string, status: number) => {
+            const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
             response.status(status).json({
                 success: false,
-                message: message
+                message: message, 
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    apiVersion   
+                }
             })
         }
 

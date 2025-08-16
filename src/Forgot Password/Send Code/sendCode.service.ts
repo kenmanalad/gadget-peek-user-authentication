@@ -4,12 +4,14 @@ import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { SendCodeDTO } from "./sendCode.dto";
 import { randomInt } from "crypto";
 import { forgotPasswordEmail } from "src/Email Template/forgot.password.template";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class SendCodeService {
     constructor(
         private prismaService: PrismaService,
-        private nodeMailerService: NodeMailerService
+        private nodeMailerService: NodeMailerService,
+        private configService: ConfigService
     ){}
 
     async sendCode(userCredentials: SendCodeDTO){
@@ -61,9 +63,14 @@ export class SendCodeService {
         // sendCode throws if sending the email fails
         await this.nodeMailerService.sendCode(user.emailAddress, code, 'Forgot Password Code', htmlFormat);
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
             success: true,
             message: "Forgot Password Code Sent Successfully. Please check your email.",
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
 
 

@@ -6,17 +6,19 @@ import { NodeMailerService } from "src/Common/Services/NodeMailer/nodemailer.ser
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { VerifyDTO } from "./verify.dto";
 import { logger } from "src/Common/Services/Utils/logger";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable({})
 export class VerifyEmailService {
     constructor(
             private prismaService: PrismaService,
             private nodeMailerService: NodeMailerService,
-            private mailService: MailService
+            private mailService: MailService,
+            private configService: ConfigService
         ){}
 
     
-    async verifyEmail(verifyEmailDetails: VerifyDTO): Promise<BasicResponseInterface>{
+    async verifyEmail(verifyEmailDetails: VerifyDTO){
         await this.prismaService.$transaction(async(ts) => 
                 {
                     const unverifiedUser = await ts.unverifiedUser.findUnique({
@@ -60,10 +62,14 @@ export class VerifyEmailService {
         await this.nodeMailerService.sendEmail(mailOption);
         
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
                 success: true,
                 message: "User successfully verified",
-                status: 200
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    apiVersion
+                }
         }
     }
 }

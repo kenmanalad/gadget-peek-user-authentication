@@ -3,6 +3,7 @@ import { HttpExceptionFilter } from "../http.exception.filter";
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 import { logger } from "src/Common/Services/Utils/logger";
+import { ConfigService } from "@nestjs/config";
 
 @Catch(
     Prisma.PrismaClientInitializationError,
@@ -13,15 +14,25 @@ import { logger } from "src/Common/Services/Utils/logger";
     HttpException
 )
 export class AdminPrismaFilter extends HttpExceptionFilter{
+    constructor(
+        private configService: ConfigService
+    ){
+        super();
+    }
     catch(exception: any, host: ArgumentsHost): void {
         const http = host.switchToHttp();
         const request = http.getRequest<Request>();
         const response = http.getResponse<Response>();
 
         const responseObject = (message: string, status: number) => {
+            const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
             response.status(status).json({
                 success: false,
-                message: message
+                message: message, 
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    apiVersion   
+                }
             })
         }
 

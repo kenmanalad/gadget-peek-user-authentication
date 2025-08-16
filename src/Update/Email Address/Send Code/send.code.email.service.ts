@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { randomInt } from "crypto";
 import { NodeMailerService } from "src/Common/Services/NodeMailer/nodemailer.service";
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
@@ -11,7 +12,8 @@ export class SendCodeUpdateEmailService{
     constructor(
         private nodeMailerService: NodeMailerService,
         private mailService: MailService, 
-        private prismaService: PrismaService
+        private prismaService: PrismaService,
+        private configService: ConfigService
     ){}
 
     async sendVerificationCode(emailAddress: string){
@@ -59,9 +61,14 @@ export class SendCodeUpdateEmailService{
 
 
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
             success: true,
-            message: "Verification code sent successfully."
+            message: "Verification code sent successfully.",
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
     }
 }

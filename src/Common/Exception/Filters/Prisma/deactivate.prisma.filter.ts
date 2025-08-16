@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { HttpExceptionFilter } from "../http.exception.filter";
 import { Request, Response } from "express";
 import { logger } from "src/Common/Services/Utils/logger";
+import { ConfigService } from "@nestjs/config";
 
 @Catch(
     Prisma.PrismaClientInitializationError,
@@ -13,6 +14,11 @@ import { logger } from "src/Common/Services/Utils/logger";
     HttpException
 )
 export class DeactivatePrismaFilter extends HttpExceptionFilter{
+    constructor(
+        private configService: ConfigService
+    ){
+        super();
+    }
     catch(exception: any, host: ArgumentsHost): void {
         const http = host.switchToHttp();
         const response = http.getResponse<Response>();

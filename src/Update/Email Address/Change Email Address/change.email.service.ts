@@ -2,11 +2,13 @@ import { BadRequestException, Injectable, InternalServerErrorException } from "@
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ChangeEmailDTO } from "./change.email.dto";
 import { logger } from "src/Common/Services/Utils/logger";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ChangeEmailService{
     constructor(
-        private prismaService: PrismaService
+        private prismaService: PrismaService,
+        private configService: ConfigService
     ){}
 
     async changeEmailAddress(id: number, updateInfo: ChangeEmailDTO){
@@ -43,9 +45,15 @@ export class ChangeEmailService{
             }
         });
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
+
         return {
             success: true,
-            message: "Email address successfully updated."
+            message: "Email address successfully updated.",
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
     }
 }

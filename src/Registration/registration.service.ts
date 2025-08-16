@@ -7,13 +7,15 @@ import { verificationEmail } from "src/Email Template/verify.email";
 import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { MailService } from "src/Common/Services/Utils/mail.service";
 import { randomInt } from 'crypto';
+import { ConfigService } from "@nestjs/config";
 @Injectable({})
 export class RegistrationService {
     constructor(
         private prismaService: PrismaService,
         private nodeMailerService: NodeMailerService,
         private passwordService: CryptService,
-        private mailService: MailService
+        private mailService: MailService,
+        private configService: ConfigService
     ){}
     private async sendVerificationCode(emailAddress: string, code: number){
         //Email Details for email verification
@@ -44,7 +46,7 @@ export class RegistrationService {
                 );
             };
     }
-    async manualRegister(userDetails: ManualUserDetailsInterface): Promise<BasicResponseInterface>{
+    async manualRegister(userDetails: ManualUserDetailsInterface){
 
             const code = randomInt(100000, 1000000);
             const now = Date.now();
@@ -86,10 +88,14 @@ export class RegistrationService {
             await this.sendVerificationCode(userDetails.emailAddress, code);
 
 
+            const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
             return {
                 success: true,
                 message:"User Created Successfully",
-                status: HttpStatus.OK
+                meta: {
+                    timestamp: new Date().toISOString(),
+                    apiVersion
+                }
             }
     }
 }

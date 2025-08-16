@@ -52,9 +52,14 @@ export class ChangePasswordService{
         // Temporary message sending  
         await this.nodeMailerService.sendEmail(mailOption);
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return{
             success: true,
-            message: "Password Changed Successfully"
+            message: "Password Changed Successfully",
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
     }
 }

@@ -2,12 +2,14 @@ import { BadRequestException, HttpStatus, Injectable } from "@nestjs/common";
 import { CryptService } from "src/Common/Services/Utils/crypt.service";
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { DeactivateDTO } from "./deactivate.dto";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class DeactivateService{
     constructor(
         private prismaService: PrismaService,
-        private passwordService: CryptService
+        private passwordService: CryptService,
+        private configService: ConfigService
     ){}
 
     private async confirmCredentials(userCredentials: DeactivateDTO){
@@ -57,10 +59,14 @@ export class DeactivateService{
 
         
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
             success: true,
             message: "Account is deactivated",
-            status: HttpStatus.OK
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
 
 

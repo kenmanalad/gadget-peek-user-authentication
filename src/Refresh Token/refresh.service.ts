@@ -71,10 +71,17 @@ export class RefreshService{
         });
         
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
             success: true,
             message: "New access token generated.",
-            access_token: access_token
+            tokens: {
+                access_token
+            },
+            meta: {
+                timestamp: new Date().toISOString(),
+                apiVersion
+            }
         }
     }
 }

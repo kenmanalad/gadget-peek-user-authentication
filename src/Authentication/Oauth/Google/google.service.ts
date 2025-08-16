@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { GoogleDTO } from "./google.dto";
 import { PrismaService } from "src/Common/Services/Prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
@@ -8,6 +8,9 @@ import { google } from "googleapis";
 import { HttpService } from "@nestjs/axios";
 import { UAParser } from "ua-parser-js";
 import { TokenService } from "src/Common/Services/Utils/token.service";
+import { logger } from "src/Common/Services/Utils/logger";
+import { lastValueFrom } from "rxjs";
+import { timeStamp } from "console";
 @Injectable()
 export class GoogleService{
     constructor(
@@ -18,7 +21,7 @@ export class GoogleService{
     ){}
 
 
-    private async verifyProfile(googleClientID: string, googleClientSecret: string, googleRedirectURL: string, code: string){
+    private async verifyProfile(googleClientID: string, googleClientSecret: string, googleRedirectURL: string, code: string, userID: number){
         
         const oauthClient = new OAuth2Client(
             googleClientID,
@@ -30,27 +33,34 @@ export class GoogleService{
         const tokens = await oauthClient.getToken(code);
 
 
-        if(!tokens.tokens) throw new UnauthorizedException(
+        if(!tokens.tokens) {
+            logger.error({
+                cause: "GOOGLE_SERVICE_ERROR_TOKENS",
+                message: "Failed to retrieve tokens from google."
+            });
+            throw new UnauthorizedException(
             'Your login session has expired or the authorization code is invalid. Please try logging in again or contact support for assistance.');
+        }
         
 
         await oauthClient.setCredentials(tokens.tokens);
         const profile = await google.oauth2("v2").userinfo.get({auth: oauthClient});
 
 
-        // This HTTP request will be used to send Google profile data to the profile service 
-        // once the profile microservice is implemented and running.
-        // await this.httpService.post(this.configService.get<string>('PROFILE_SERVICE_URI'),{
-        //     email: profile.data.email,
-        //     firstName: profile.data.given_name,
-        //     lastName: profile.data.family_name,
-        //     profilePic: profile.data.picture,
-        //     gender: profile.data.gender
-        // });
+        if(!profile){
+            logger.error({
+                cause: "OAUTH_PROFILE_RETRIEVAL_ERROR",
+                message: "Failed to retrieve profile information from google"
+            })
+            throw new UnauthorizedException('Failed to retrieve user profile from Google. Please try again later.');
+        }
 
-        if(!profile) throw new UnauthorizedException('Failed to retrieve user profile from Google. Please try again.');
 
-        return tokens.tokens.refresh_token;
+
+        return {
+            token: tokens.tokens.refresh_token,
+            profile
+        };
 
 
     }
@@ -63,21 +73,60 @@ export class GoogleService{
 
         const user = foundOrCreated.user;
 
+        const defaultErrorMessage = "We are experiencing a temporary issue right now. Please contact an agent to resolve this issue.";
+
         const googleClientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
         const googleClientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
         const googleRedirectURL = this.configService.get<string>('GOOGLE_REDIRECT_URL');
 
-        if(!googleClientID || !googleClientSecret || !googleRedirectURL) throw new InternalServerErrorException("We are experiencing a temporary error right now. Please contact an agent.");
+        if(!googleClientID || !googleClientSecret || !googleRedirectURL) {
+            logger.error({
+                cause: "GOOGLE_SERVICE_ERROR_MISSING_CREDENTIALS",
+                message: "Missing required credentials for google connection."
+            });
+            throw new InternalServerErrorException(defaultErrorMessage)
+        };
 
         const { browser, device } = UAParser(userAgent);
 
-        const refreshTokenGoogle = await this.verifyProfile(googleClientID, googleClientSecret,googleRedirectURL, googleAuthDetails.code);
+        const {token, profile} = await this.verifyProfile(googleClientID, googleClientSecret,googleRedirectURL, googleAuthDetails.code, foundOrCreated.user.id);
 
-        if(!refreshTokenGoogle) throw new UnauthorizedException("Failed to retrieve user profile from Google. Please try again.");
+        if(!token) throw new UnauthorizedException("Failed to retrieve user profile from Google. Please try again.");
+
+        const profileRegistrationURL = this.configService.get<string>('PROFILE_SERVICE_ROUTE_REGISTRATION');
+
+        if(!profileRegistrationURL){
+            logger.error({
+                cause: "OAUTH_PROFILE_REGISTRATION_ERROR_MISSING_URL",
+                message: "Unable to locate URL for profile service."
+            });
+
+            throw new InternalServerErrorException(defaultErrorMessage);
+        }
+
+        const registered = await lastValueFrom(
+            this.httpService.post(profileRegistrationURL, {
+                firstName: profile.data.given_name,
+                lastName: profile.data.family_name,
+                profilePic: profile.data.picture,
+                gender: profile.data.gender,
+                userID: foundOrCreated.user.id
+            })
+        );
+
+
+        if(!registered.data.success){
+            logger.error({
+                cause: "GOOGLE_SERVICE_ERROR_FAILED_TO_REGISTER",
+                message: "Failed to register profile from google to profile service."
+            });
+
+            throw new BadRequestException(registered.data.message);
+        }
 
         await this.prismaService.refreshToken.create({
             data: {
-                refreshToken: refreshTokenGoogle,
+                refreshToken: token,
                 verifiedUser: {
                         connect: { id: user.id },
                     },
@@ -103,10 +152,17 @@ export class GoogleService{
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
+        const apiVersion = this.configService.get<string>('API_VERSION') ?? 1.0;
         return {
             success: true,
             message: "User successfully signed in",
-            access_token: access_token
+            tokens: {
+                access_token
+            },
+            meta:{
+                timeStamp: new Date().toISOString(),
+                apiVersion
+            }
         }
 
     }
