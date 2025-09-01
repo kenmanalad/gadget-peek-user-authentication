@@ -54,7 +54,8 @@ import { ChangeEmailModule } from './Update/Email Address/Change Email Address/c
     JwtGuardModule, 
     PasswordUpdateModule,
     SendCodeUpdateEmailModule,
-    ChangeEmailModule
+    ChangeEmailModule, 
+    AdminModule
   ],
 })
 export class AppModule {}

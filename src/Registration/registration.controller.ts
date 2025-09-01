@@ -7,7 +7,7 @@ import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller("security")
 @UseGuards(RequestRateLimiterGuard("registration", 2, 60))
-@UseFilters(new RegistrationPrismaFilter())
+@UseFilters(RegistrationPrismaFilter)
 export class RegistrationController{
     constructor(private registerService: RegistrationService){}
 

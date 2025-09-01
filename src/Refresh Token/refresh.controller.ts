@@ -9,7 +9,7 @@ import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller('security')
 @UseGuards(RequestRateLimiterGuard("refresh",3, 60))
-@UseFilters(new RefreshTokenFilter(), new RefreshPrismaFilter())
+@UseFilters(RefreshTokenFilter, RefreshPrismaFilter)
 export class RefreshController{
     constructor(private refreshService: RefreshService){}
 

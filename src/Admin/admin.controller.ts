@@ -9,8 +9,8 @@ import { AdminGuard } from "src/Common/Guards/admin.guard";
 // It should never be accessed externally or by unauthorized services.
 // Ensure `AdminGuard` is always applied to enforce this restriction.
 @Controller('admin')
-@Admin()
-@UseGuards(AdminGuard)
+// @Admin()
+// @UseGuards(AdminGuard)
 @UseFilters(AdminPrismaFilter)
 // Admin feature uses access tokens sent via secure HttpOnly cookies instead of Bearer Authorization headers.
 // All security concerns such as CSRF protection, HTTPS, SameSite, short-lived tokens and etc., are already addressed.

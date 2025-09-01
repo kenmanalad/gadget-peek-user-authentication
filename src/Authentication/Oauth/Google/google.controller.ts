@@ -7,7 +7,7 @@ import { GoogleAuthFilter } from "src/Common/Exception/Filters/google.auth.filte
 import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller('security')
-@UseFilters(new GooglePrismaFilter(), new GoogleAuthFilter())
+@UseFilters(GooglePrismaFilter, GoogleAuthFilter)
 @UseGuards(RequestRateLimiterGuard("googleAuth", 5, 60))
 export class GoogleController {
     // This endpoint accepts the authorization code provided by the client.

@@ -7,7 +7,7 @@ import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 @Controller('security')
 @UseGuards(RequestRateLimiterGuard("authentication", 5, 60))
-@UseFilters(new AuthenticationPrismaFilter())
+@UseFilters(AuthenticationPrismaFilter)
 export class AuthController {
     constructor(private authService: AuthService){}
     @Post('manual-auth')

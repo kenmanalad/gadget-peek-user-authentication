@@ -8,7 +8,7 @@ import { RequestRateLimiterGuard } from "src/Common/Guards/request.guard";
 
 
 @Controller('security')
-@UseFilters(new VerifyPrismaFilter())
+@UseFilters(VerifyPrismaFilter)
 @UseGuards(RequestRateLimiterGuard("verify",3, 60))
 export class VerifyEmailController {
     constructor(private verifyEmailService: VerifyEmailService){}

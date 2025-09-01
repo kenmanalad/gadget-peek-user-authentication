@@ -6,9 +6,6 @@ import { Response } from "express";
 import { TokenService } from "src/Common/Services/Utils/token.service";
 import { UAParser } from 'ua-parser-js';
 import { logger } from "src/Common/Services/Utils/logger";
-import { formatDateTime } from "src/Common/Services/Utils/formatDateTime";
-import { timestamp } from "rxjs";
-import { ConfigService } from "@nestjs/config";
 import { MetaResponseService } from "src/Common/Services/Utils/meta.response.service";
 
 
